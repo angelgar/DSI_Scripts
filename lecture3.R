@@ -20,4 +20,6 @@ hist(x)
 plot(x, y)
 
 ## Print out the scatterplot
-dev.print(pdf, "./scatter_plot.pdf", height = 4, width = 4)
+## dev.print(pdf, "./scatter_plot.pdf", height = 4, width = 4)
+
+#This is just a test to commit
