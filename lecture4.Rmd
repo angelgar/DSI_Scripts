@@ -27,4 +27,18 @@ You can also embed plots, for example:
 plot(pressure)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot. 
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot. $ (A \cup B)$
+
+
+
+
+$$
+\begin{aligned}
+Bias(\hat{\theta})  &= E(\hat{\theta}) - \theta \\
+                    &= E(2 \bar{X} -1) - \theta \\
+                    &= \frac{2}{n}\sum_{i=1}^n E(X_i) -1 -\theta \\
+                    &= 2E(X) - 1 - \theta \\
+                    &= 2 \cdot \frac{\theta+1}{2} - 1 - \theta \\
+                    &= 0\\
+\end{aligned}
+$$
