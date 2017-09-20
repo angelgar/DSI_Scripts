@@ -1,0 +1,37 @@
+---
+title: "Lecture 5"
+author: "Angel Garcia de la Garza"
+date: "9/20/2017"
+output: html_document
+---
+The shortcut to inset r chunks is Command+option+I
+
+```{r library}
+#Remove environment variables
+rm(list = ls())
+
+#Load tidyverse
+library(tidyverse)
+```
+
+I will first load the data in R
+
+```{r}
+
+litters_data = readr::read_csv(file = "./data_import_examples/FAS_litters.csv")
+
+```
+
+In this step I will clean up the names of the dataframe
+
+```{r}
+
+##Print out names of the dataset
+names(litters_data)
+
+#Use clean_names from janitor to change the names to snake case
+## This is cool
+litters_data = janitor::clean_names(litters_data)
+names(litters_data)
+```
+
