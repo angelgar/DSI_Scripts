@@ -18,7 +18,7 @@ I will first load the data in R
 
 ```{r}
 
-litters_data = readr::read_csv(file = "./data_import_examples/FAS_litters.csv")
+litters_data <- readr::read_csv(file = "./data_import_examples/FAS_litters.csv")
 
 ```
 
@@ -31,7 +31,33 @@ names(litters_data)
 
 #Use clean_names from janitor to change the names to snake case
 ## This is cool
-litters_data = janitor::clean_names(litters_data)
+litters_data <- janitor::clean_names(litters_data)
 names(litters_data)
+
+##This is an example of reading in a dataset while you specify the class of each column
+litters_data <- read_csv(file = "./data_import_examples/FAS_litters.csv",
+  col_types = "ccddiiii"
+)
+
+## character = c, double = d, integer = i
+```
+
+```{r}
+##This is a test example
+
+pup_data <- read_csv(file = "./data_import_examples/FAS_pups.csv", 
+                     col_types = "ciiiii")
+
+pup_data <- janitor::clean_names(pup_data)
+
+```
+
+Test read excel
+
+```{r}
+library("readxl")
+
+mlb11_data <- read_excel("./data_import_examples/mlb11.xlsx", n_max = 20)
+
 ```
 
