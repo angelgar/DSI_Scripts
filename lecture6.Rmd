@@ -5,26 +5,113 @@ date: "9/25/2017"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+library(tidyverse)
+library(janitor)
+
+options(tibble.print_min = 3)
+
+litters_data = read_csv("./lecture5/data_import_examples/FAS_litters.csv", col_types = "ccddiiii")
+litters_data = clean_names(litters_data)
+
+pups_data = read_csv("./lecture5/data_import_examples/FAS_pups.csv", col_types = "ciiiii")
+pups_data = clean_names(pups_data)
 ```
 
-## R Markdown
+# Select
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+You put a dataframe in and you get a dataframe out
+```{r}
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+litter_subset <- select(litters_data, group, litter_number)
+pups_mini <- select(litters_data, group, litter_number, pups_survive, gd0_weight)
 
-```{r cars}
-summary(cars)
+#To remove a column 
+
+select(litters_data, -group)
+
+# To go through a couple of columns
+
+select(litters_data, group:gd_of_birth)
+
+# You can rename columns by doing the following:
+
+select(litters_data, litter = litter_number)
+
+#There's shortcuts like everything(), starts_with(), ends_with(), and contains()
+
+select(litters_data, group: everything())
+
+#If you want the output to be a vector, you can use pull
+
+pull(litters_data, group)
 ```
 
-## Including Plots
+# Filter
 
-You can also embed plots, for example:
+```{r}
+#You can call columns by number but you might not want to do that
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+litters_data[,1:5]
+
+## Filter will keep everything that is true
+
+attach(litters_data)
+
+filter(litters_data, group == "Con7")
+
+#These two statements are the same thing. 
+filter(litters_data, group == "Con7", gd0_weight < 20)
+filter(litters_data, group == "Con7" & gd0_weight < 20)
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+#Mutate
+
+```{r}
+litters_mutated <- mutate(litters_data, wt_gain = gd18_weight - gd0_weight,
+                          group = tolower(group))
+
+# you can refer to a variable that you just declared within the mutated variable
+
+litters_mutated <- mutate(litters_data, wt_gain = gd18_weight - gd0_weight,
+                          group = tolower(group), centered_gain = wt_gain - mean(wt_gain, na.rm = T))
+
+```
+
+#Arrange
+
+```{r}
+
+head(arrange(litters_data, group, pups_born_alive), 10)
+
+```
+
+#Pipe operator
+
+```{r}
+##you can do this long messy list
+
+litters_data_raw = read_csv("./data/FAS_litters.csv",
+  col_types = "ccddiiii")
+litters_data_clean_names = clean_names(litters_data_raw)
+litters_data_selected_cols = select(litters_data_clean_names, -pups_survive)
+litters_data_with_vars = mutate(litters_data_selected_cols, 
+  wt_gain = gd18_weight - gd0_weight,
+  group = tolower(group))
+litters_data_with_vars
+
+## Or you can pipe like this:
+
+litters_data = 
+  read_csv("./data/FAS_litters.csv", col_types = "ccddiiii") %>%
+  clean_names() %>%
+  select(-pups_survive) %>%
+  mutate(
+    wt_gain = gd18_weight - gd0_weight,
+    group = tolower(group))
+
+
+```
+
+
