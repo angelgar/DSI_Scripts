@@ -1,0 +1,12 @@
+---
+title: "Lecture 7"
+author: "Angel Garcia de la Garza"
+date: "9/27/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
