@@ -5,8 +5,73 @@ date: "9/27/2017"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+#Set up
+
+```{r}
+library(tidyverse)
+library(haven)
+library(readxl)
+library(janitor)
+
+options(tibble.print_min = 5)
+
 ```
 
-## R Markdown
+
+#Gather
+
+```{r}
+library(haven)
+pulse_data = read_sas("./lecture5/data_import_examples/public_pulse_data.sas7bdat") %>%
+  clean_names()
+
+pulse_tidy_data = gather(pulse_data, key = visit, value = bdi, bdiscore_bl:bdiscore_12m)
+
+##The warning comes because there is a different label for each column so it will drop them
+##Each column has a label and a name 
+
+str(pulse_data)
+
+```
+
+This is the test for this thing
+
+```{r}
+
+pups_data <- read_csv("./lecture5/data_import_examples/FAS_pups.csv")
+
+litters_data <- read_csv("./lecture5/data_import_examples/FAS_litters.csv") %>%
+  clean_names() %>%
+  separate(group, into = c("tx_group", "day_tx"), sep = 3) ##You can select the index at which to split
+
+
+litters_tidy_data = gather(litters_data, key = gd, value = weight, gd0_weight:gd18_weight) %>%
+                    select(tx_group, litter_number, gd, weight)
+
+
+```
+
+#Separate Function
+
+```{r}
+
+separate(pulse_tidy_data, visit, into = c("remove", "visit"), sep = "_") %>%
+  select(., -remove) %>% ##Select and remove "remove"
+  pull(visit) %>% #select the visit column
+  unique()
+
+new_pulse <- separate(pulse_tidy_data, visit, into = c("remove", "visit"), sep = "_") %>%
+              select(., -remove) %>% ##Select and remove "remove"
+              mutate(visit = replace(visit, visit == "bl","00m"), 
+              visit = factor(visit, levels=paste0(c("00","01","06","12"), "m"))) %>% 
+              ##Paste number with m and make it a new factor
+              arrange(id, visit)
+
+```
+
+#Spread
+
+```{r}
+
+```
+
