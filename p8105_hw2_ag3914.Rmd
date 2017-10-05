@@ -1,0 +1,156 @@
+---
+title: "Homework 2"
+author: "Angel Garcia de la Garza"
+date: "10/3/2017"
+output: html_document
+---
+
+
+```{r libraries}
+library(readxl)
+library(tidyverse)
+library(ggplot2)
+```
+
+## Problem 1
+
+```{r mrtrash}
+trash_data <- read_excel("../data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", 
+                              sheet = "Mr. Trash Wheel", range = cell_cols("A:N")) %>%  
+              janitor::clean_names() %>%
+              filter(., !grepl("Total", month), !is.na(dumpster)) %>%
+              mutate(., sports_balls = as.integer(round(sports_balls)))
+  
+```
+
+This is the Mr. Trash Wheel dataset. Mr. Trash Wheel is a "water-wheel vessel that removes trash from the Inner Harbor in Baltimore, Maryland". This dataset includes `r dim(trash_data)[1]` observations and `r dim(trash_data)[2]` variables. The dataset contains the following several including the dumpster number, date, total volume and weight litter, number of plastic bottles, cigarette_butts and sports balls among others. The median number of sports balls is `r median(trash_data$sports_balls)`.
+
+
+```{r 2Precipitation}
+preci2017_data <- read_excel("../data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", 
+                                  sheet = "2017 Precipitation", 
+                                  range = cell_rows(2:14)) %>%  
+                  janitor::clean_names() %>%
+                  mutate(., year = "2017", month = month.name[month]) %>%
+                  filter(., !is.na(total))
+  
+
+preci2016_data <- read_excel("../data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", 
+                                  sheet = "2016 Precipitation", 
+                                  range = cell_rows(2:14)) %>%  
+                  janitor::clean_names() %>%
+                  mutate(., year = "2016", month = month.name[month]) %>%
+                  filter(., !is.na(total))
+
+precipitation_data <- bind_rows(preci2017_data, preci2016_data)
+
+```
+
+The following dataset contains precipitation data from 2016-2017 from the Mr. Trash Wheel dataset. The dataset contains a month, year and the total precipitation for that month and year. For example, the total precipitation in 2017 was 
+
+#Problem 2
+
+```{r fivethirtyeight}
+
+pols_data <- read_csv("../data/fivethirtyeight_datasets/pols-month.csv") %>%
+             separate(., mon, into = c("year", "month","day"), sep = "-") %>%
+             janitor::clean_names() %>%
+             select(., -day) %>%
+             mutate(., president = ifelse(prez_dem == 1, "dem", "gop"), 
+                       month = as.character(as.numeric(month)))
+
+pols_data$prez_gop[which(pols_data$prez_gop == 2)] <- 1
+
+
+snp_data <-  read_csv("../data/fivethirtyeight_datasets/snp.csv") %>%
+             separate(., date, into = c("month","day","year"), sep = "/") %>%
+             janitor::clean_names() %>%
+             select(., -day, year) %>%
+             select(., year, everything()) %>%
+             mutate(., month = as.character(as.numeric(month)))
+
+unemployment_data <- read_csv("../data/fivethirtyeight_datasets/unemployment.csv") %>%
+                     gather(., key = month, value = unemployment, Jan:Dec, 
+                               convert = TRUE) %>%
+                     janitor::clean_names() %>%
+                     mutate(., month = match(month, month.abb),
+                               month = as.character(as.numeric(month)),
+                               year  = as.character(year))
+
+final_data <- full_join(pols_data, snp_data, by = c("year","month"))
+final_data <- full_join(final_data, unemployment_data, by = c("year","month"))
+
+
+```
+
+```{r instacart}
+
+#First section
+instacart_data <- read_csv("../data/instacart_train_data.csv.zip") %>%
+                  janitor::clean_names()
+
+dim(instacart_data)[1]
+
+length(unique(instacart_data$order_id))
+
+
+#second section
+hist_oh <- filter(instacart_data, department == "produce") %>%
+           ggplot(., aes(x = order_hour_of_day)) + 
+                geom_histogram(binwidth = 1, colour = "black", fill = "white")
+
+hist_oh
+
+#Third section
+
+aisle_dep <- select(instacart_data, department, aisle) %>%
+             distinct(.)
+
+head(aisle_dep)
+
+#Fourth section
+
+dep_min <- as.tibble(table(instacart_data$department)) %>%
+             rename(., department = Var1, freq = n ) %>% 
+             filter(., freq == min(freq)) %>%
+             select(., department) %>%
+             as.character()
+
+dep_min
+
+dep_max <- as.tibble(table(instacart_data$department)) %>%
+             rename(., department = Var1, freq = n ) %>% 
+             filter(., freq == max(freq)) %>%
+             select(., department) %>%
+             as.character()
+
+dep_max
+
+## Fifth section
+
+median_dspo <- select(instacart_data, order_id, days_since_prior_order) %>%
+               distinct(.) %>%
+               select(., days_since_prior_order)
+
+median(median_dspo$days_since_prior_order)
+
+#Sixth section
+
+median_apples <- select(instacart_data, order_id, order_hour_of_day, 
+                                        product_name) %>%
+                 filter(., product_name == "Pink Lady Apples") %>%
+                 distinct(.)
+
+median(median_apples$order_hour_of_day)
+
+
+
+median_coffee <- select(instacart_data, order_id, order_hour_of_day, 
+                                        product_name) %>%
+                 filter(., product_name == "Coffee Ice Cream") %>%
+                 distinct(.)
+
+median(median_coffee$order_hour_of_day)
+
+```
+
