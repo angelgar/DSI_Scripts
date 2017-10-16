@@ -1,0 +1,70 @@
+---
+title: "Lecture 10"
+author: "Angel Garcia de la Garza"
+date: "10/9/2017"
+output: html_document
+---
+
+
+```{r}
+
+library(tidyverse)
+airbnb_data = read_csv("../data/nyc_airbnb.zip")
+
+str(airbnb_data)
+
+airbnb_data %>%
+  count(room_type)
+
+airbnb_data %>%
+  count(neighbourhood_group)
+
+```
+
+
+```{r}
+
+library(ggridges)
+
+airbnb_data %>%
+  group_by(neighbourhood_group) %>%
+  summarize(mean_rating = mean(review_scores_location, na.rm=T), 
+            median_rating = median(review_scores_location, na.rm=T),
+            sd_rating = sd(review_scores_location, na.rm=T))
+
+airbnb_data %>%
+  mutate(rating = review_scores_location / 2) %>%
+  ggplot(aes(x=rating, y=neighbourhood_group)) +
+  geom_density_ridges(scale=.85)
+
+```
+
+Do host with more ratings have higher or lower ratings
+
+```{r}
+
+rating_host <- airbnb_data %>%
+                mutate(rating = review_scores_location / 2) %>%
+                group_by(host_id) %>%
+                summarize(mean = mean(rating, na.rm=T), count=n())
+
+#check out spread()
+
+cor.test(rating_host$mean, rating_host$count)
+
+```
+
+#plotting things georgraphically
+
+```{r}
+
+airbnb_data %>%
+  filter(neighbourhood_group == "Manhattan", price < 1000) %>%
+  ggplot(aes(x = longitude, y = latitude, color = log(price))) +
+  geom_point(alpha = 0.1) +
+  coord_map()
+
+
+
+```
+
