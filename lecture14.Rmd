@@ -1,0 +1,117 @@
+---
+title: "Lecture 14"
+author: "Angel Garcia de la Garza"
+date: "10/25/2017"
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+library(rvest)
+library(httr)
+
+```
+
+# Two ways to download (with csv and json)
+
+```{r}
+
+nyc_water = GET("https://data.cityofnewyork.us/resource/waf7-5gvc.csv") %>%
+  content("parsed")
+
+
+nyc_water_json = GET("https://data.cityofnewyork.us/resource/waf7-5gvc.json") %>% 
+  content("text") %>%
+  jsonlite::fromJSON() %>%
+  as_tibble()
+
+```
+
+### This is from the CDC
+
+```{r}
+
+brfss = 
+  GET("https://chronicdata.cdc.gov/api/views/hn4x-zwk7/rows.csv?accessType=DOWNLOAD") %>% 
+  content("parsed")
+
+```
+
+### Playing with Pokemon
+
+```{r}
+
+poke = GET("http://pokeapi.co/api/v2/pokemon/1") %>%
+  content()
+
+```
+
+### Strings as factors
+
+```{r}
+
+
+library(tidyverse)
+library(janitor)
+library(haven)
+library(rvest)
+library(stringr)
+library(forcats)
+
+```
+
+
+
+```{r}
+
+
+pulse_data = read_sas("../data/data_import_examples/public_pulse_data.sas7bdat") %>%
+  clean_names() %>%
+  gather(key = visit, value = bdi, bdiscore_bl:bdiscore_12m) %>%
+  mutate(visit = str_replace(visit, "bdiscore_", ""),
+         visit = str_replace(visit, "bl", "00m"),
+         visit = fct_relevel(visit, str_c(c("00", "01", "06", "12"), "m"))) %>%
+  arrange(id, visit)
+
+
+print(pulse_data, n = 12)
+
+```
+
+
+```{r}
+
+url = "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
+drug_use_xml = read_html(url)
+
+table_marj = (drug_use_xml %>% html_nodes(css = "table"))[[1]] %>%
+  html_table() %>%
+  .[-1,] %>%
+  as_tibble()
+
+
+data_marj = 
+  table_marj %>%
+  select(-contains("P Value")) %>%
+  gather(key = key, value = percent, -State) %>%
+  separate(key, into = c("age", "year"), sep = "\\(") %>%
+  mutate(year = str_sub(year, 1, -2),
+         percent = str_replace(percent, "[a-z]", ""),
+         percent = as.numeric(percent)) %>%
+  filter(!(State %in% c("Total U.S.", "Northeast", "Midwest", "South", "West")))
+
+
+data_marj %>%
+  filter(age == "12-17")
+
+
+data_marj %>%
+  filter(age == "12-17") %>% 
+  mutate(State = fct_reorder(State, percent)) %>% 
+  ggplot(aes(x = State, y = percent, color = year)) + 
+    geom_point() + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+

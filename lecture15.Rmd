@@ -1,0 +1,78 @@
+---
+title: "Lecture 15"
+author: "Angel Garcia de la Garza"
+date: "10/30/2017"
+output: html_document
+---
+
+
+```{r}
+
+
+library(tidyverse)
+library(tidytext)
+library(stringr)
+library(forcats)
+library(viridis)
+
+nyc_inspections = read_csv("../data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv.gz", 
+                           col_types = cols(building = col_character()),
+                           na = c("NA", "N/A")) %>% 
+  filter(grade %in% c("A", "B", "C")) %>% 
+  mutate(inspection_num = row_number(),
+         boro = str_to_title(boro)) %>% 
+  select(inspection_num, boro, grade, score, critical_flag, dba, cuisine_description, zipcode, violation_description)
+
+
+```
+
+
+
+```{r}
+
+nyc_inspections %>%
+  filter(str_detect(dba, "Pizza")) %>% View
+
+```
+
+
+```{r}
+
+nyc_inspections %>%
+  filter(str_detect(dba, regex("pizza", ignore_case = T))) %>%
+  View()
+
+```
+
+
+```{r}
+
+nyc_inspections %>% 
+  filter(str_detect(dba, regex("pizza", ignore_case = TRUE))) %>%
+  ggplot(aes(x = boro, fill = grade)) + geom_bar()
+
+```
+
+
+
+```{r}
+
+nyc_inspections %>% 
+  filter(str_detect(dba, regex("pizza", ignore_case = TRUE))) %>%
+  mutate(boro = fct_infreq(boro)) %>%
+  ggplot(aes(x = boro, fill = grade)) + geom_bar()
+
+```
+
+
+```{r}
+
+nyc_inspections %>% 
+  filter(str_detect(dba, regex("pizza", ignore_case = TRUE))) %>%
+  mutate(boro = fct_infreq(boro),
+         boro = fct_recode(boro, "Hipsterville" = "Brooklyn")) %>% 
+  ## Factor recode (you change the levels)
+  ggplot(aes(x = boro, fill = grade)) + geom_bar()
+
+```
+

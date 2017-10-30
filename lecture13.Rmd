@@ -76,3 +76,37 @@ cast = hpss_html %>%
 ```
 
 
+## Toothbrush reviews
+
+```{r}
+
+
+tooth_html = read_html("https://www.amazon.com/Philips-Sonicare-rechargeable-toothbrush-HX6211/product-reviews/B00YAR7ZFM/ref=cm_cr_arp_d_viewopt_srt?ie=UTF8&reviewerType=all_reviews&sortBy=recent&pageNumber=1") %>%
+  html_nodes("#cm_cr-review_list .a-color-base") %>%
+  html_text()
+
+tooth_stars = read_html("https://www.amazon.com/Philips-Sonicare-rechargeable-toothbrush-HX6211/product-reviews/B00YAR7ZFM/ref=cm_cr_arp_d_viewopt_srt?ie=UTF8&reviewerType=all_reviews&sortBy=recent&pageNumber=1") %>%
+  html_nodes("#cm_cr-review_list .review-rating") %>%
+  html_text()
+
+
+```
+
+
+## Water data
+
+```{r}
+
+nyc_water = GET("https://data.cityofnewyork.us/resource/waf7-5gvc.csv") %>% 
+  content("parsed")
+
+
+### This is for jason data
+
+nyc_water = GET("https://data.cityofnewyork.us/resource/waf7-5gvc.json") %>% 
+  content("text") %>%
+  jsonlite::fromJSON() %>%
+  as_tibble()
+
+```
+
