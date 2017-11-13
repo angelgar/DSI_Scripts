@@ -1,0 +1,18 @@
+---
+title: "Lecture 16 Plotly"
+author: "Angel Garcia de la Garza"
+date: "11/1/2017"
+output: html_document
+---
+
+```{r}
+
+library(tidyverse)
+library(janitor)
+library(stringr)
+library(forcats)
+library(viridis)
+library(plotly)
+
+```
+
